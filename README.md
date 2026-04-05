@@ -1,4 +1,4 @@
-readme_content = """#  StudyTracker — WPL Mini Project
+#  StudyTracker — WPL Mini Project
 
 A Django-based Pomodoro study tracker with session statistics and a PDF resource library.
 
@@ -56,7 +56,7 @@ studytracker/
 
 ##  Setup
 
-\`\`\`bash
+```bash
 # 1. Create and activate virtual environment
 python3 -m venv venv
 source venv/bin/activate        # Windows: venv\\Scripts\\activate
@@ -72,7 +72,7 @@ python manage.py createsuperuser
 
 # 5. Run the server
 python manage.py runserver
-\`\`\`
+```
 
 Open **http://127.0.0.1:8000** in your browser.
 
@@ -136,18 +136,18 @@ Open **http://127.0.0.1:8000** in your browser.
 ##  Customisation
 
 **Change timer durations** — edit `static/js/timer.js`:
-\`\`\`js
+```js
 const FOCUS_DURATION = 25 * 60;  // change 25
 const BREAK_DURATION =  5 * 60;  // change 5
-\`\`\`
+```
 
 **Change the colour theme** — edit `:root` in `static/css/style.css`:
-\`\`\`css
+```css
 :root {
   --accent:  #e07a5f;  /* primary CTA colour */
   --bg:      #fdf6ec;  /* page background     */
 }
-\`\`\`
+```
 
 ---
 
@@ -158,9 +158,3 @@ const BREAK_DURATION =  5 * 60;  // change 5
 | 1 | Prahlad Gaitonde | C2 | 44 | 230962262 |
 | 2 | Kumar Satyam | C2 | 37 | 230962226 |
 | 3 | Parth Niraj Kumar | C2 | 38 | 230962228 |
-"""
-
-with open("README.md", "w") as f:
-    f.write(readme_content)
-
-print("README.md written successfully.")
