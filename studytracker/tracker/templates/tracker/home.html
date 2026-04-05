@@ -1,0 +1,101 @@
+{% extends 'tracker/base.html' %}
+{% load static %}
+
+{% block title %}StudyTracker – Timer{% endblock %}
+{% block body_class %}page-home{% endblock %}
+{% block nav_home %}active{% endblock %}
+
+{% block content %}
+<div class="timer-wrapper">
+
+  <!-- Task Input Section -->
+  <div class="task-input-section" id="taskInputSection">
+    <h1 class="hero-title">Focus. <span class="accent">Study.</span> Achieve.</h1>
+    <p class="hero-sub">Enter a task name to start your Pomodoro session.</p>
+    <div class="input-group">
+      <input
+        type="text"
+        id="taskNameInput"
+        class="task-input"
+        placeholder="What are you studying today?"
+        maxlength="200"
+        autocomplete="off"
+      />
+      <button id="startBtn" class="btn btn-start" disabled>
+        ▶ Start 25 min
+      </button>
+    </div>
+  </div>
+
+  <!-- Timer Section (hidden until started) -->
+  <div class="timer-section hidden" id="timerSection">
+    <div class="task-label-wrap">
+      <span class="task-badge" id="timerTaskBadge">Task</span>
+    </div>
+
+    <div class="timer-ring-container">
+      <svg class="timer-ring" viewBox="0 0 240 240">
+        <circle class="ring-bg" cx="120" cy="120" r="108"/>
+        <circle class="ring-progress" id="ringProgress" cx="120" cy="120" r="108"
+          stroke-dasharray="678.6" stroke-dashoffset="0"/>
+      </svg>
+      <div class="timer-display">
+        <div class="timer-mode" id="timerMode">FOCUS</div>
+        <div class="timer-time" id="timerDisplay">25:00</div>
+        <div class="timer-pomodoro" id="pomodoroCount">🍅 Round 1</div>
+      </div>
+    </div>
+
+    <div class="timer-controls">
+      <button class="btn btn-stop" id="stopBtn">⏸ Stop</button>
+      <button class="btn btn-resume hidden" id="resumeBtn">▶ Resume</button>
+      <button class="btn btn-done" id="doneBtn">✓ Done</button>
+    </div>
+  </div>
+
+  <!-- Congratulations Modal -->
+  <div class="modal-overlay hidden" id="congratsModal">
+    <div class="modal-card">
+      <div class="confetti-emoji">🎉</div>
+      <h2 class="modal-title">Task Complete!</h2>
+      <p class="modal-task-name" id="modalTaskName"></p>
+      <div class="modal-stats">
+        <div class="modal-stat">
+          <span class="modal-stat-label">Time Taken</span>
+          <span class="modal-stat-value" id="modalTimeTaken"></span>
+        </div>
+        <div class="modal-stat">
+          <span class="modal-stat-label">Pomodoros</span>
+          <span class="modal-stat-value" id="modalPomodoros"></span>
+        </div>
+      </div>
+      <p class="modal-saved">✅ Session saved to your stats!</p>
+      <div class="modal-actions">
+        <button class="btn btn-start" id="modalNewTask">Start New Task</button>
+        <a href="{% url 'stats' %}" class="btn btn-outline">View Stats</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Break Modal -->
+  <div class="modal-overlay hidden" id="breakModal">
+    <div class="modal-card break-modal">
+      <div class="break-emoji">☕</div>
+      <h2 class="modal-title">Time to Take a Break!</h2>
+      <p class="break-desc">Great focus session! Relax for 5 minutes — you've earned it.</p>
+      <div class="break-timer-display" id="breakTimerDisplay">5:00</div>
+      <p class="break-auto">The next focus session starts automatically.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const CSRF_TOKEN = "{{ csrf_token }}";
+const SAVE_URL = "{% url 'save_session' %}";
+</script>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/timer.js' %}"></script>
+{% endblock %}

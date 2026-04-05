@@ -1,0 +1,144 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}StudyTracker – Resources{% endblock %}
+{% block body_class %}page-resources{% endblock %}
+{% block nav_resources %}active{% endblock %}
+
+{% block content %}
+<div class="resources-wrapper">
+  <div class="page-header">
+    <h1 class="page-title">📖 Study Resources</h1>
+    <p class="page-sub">Your personal PDF library — all study material in one place.</p>
+  </div>
+
+  <div class="resources-layout">
+
+    <!-- Upload Form -->
+    <div class="upload-panel">
+      <h2 class="panel-title">📤 Upload PDF</h2>
+      <form method="post" action="{% url 'upload_resource' %}" enctype="multipart/form-data" class="upload-form">
+        {% csrf_token %}
+        <div class="form-field">
+          <label>Title *</label>
+          {{ form.title }}
+        </div>
+        <div class="form-field">
+          <label>Subject</label>
+          {{ form.subject }}
+        </div>
+        <div class="form-field">
+          <label>Description</label>
+          {{ form.description }}
+        </div>
+        <div class="form-field">
+          <label>PDF File *</label>
+          <div class="file-drop-zone" id="fileDropZone">
+            <span class="drop-icon">📄</span>
+            <span class="drop-text" id="dropText">Click or drag a PDF here</span>
+            {{ form.pdf_file }}
+          </div>
+        </div>
+        <button type="submit" class="btn btn-start btn-full">Upload PDF</button>
+      </form>
+    </div>
+
+    <!-- PDF Library -->
+    <div class="library-panel">
+      <div class="library-header">
+        <h2 class="panel-title">📚 Library</h2>
+        <!-- Subject Filter -->
+        {% if subjects %}
+        <div class="filter-chips">
+          <a href="{% url 'resources' %}" class="chip {% if not subject_filter %}chip-active{% endif %}">All</a>
+          {% for subject in subjects %}
+          <a href="?subject={{ subject|urlencode }}"
+             class="chip {% if subject_filter == subject %}chip-active{% endif %}">{{ subject }}</a>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      {% if resources %}
+      <div class="pdf-grid">
+        {% for resource in resources %}
+        <div class="pdf-card">
+          <div class="pdf-card-top">
+            <div class="pdf-icon">📄</div>
+            <div class="pdf-info">
+              <div class="pdf-title">{{ resource.title }}</div>
+              {% if resource.subject %}
+              <div class="pdf-subject-tag">{{ resource.subject }}</div>
+              {% endif %}
+              {% if resource.description %}
+              <div class="pdf-desc">{{ resource.description }}</div>
+              {% endif %}
+              <div class="pdf-date">Uploaded {{ resource.uploaded_at|date:"d M Y" }}</div>
+            </div>
+          </div>
+          <div class="pdf-actions">
+            <button class="btn btn-outline btn-sm" onclick="openPDF('{{ resource.pdf_file.url }}', '{{ resource.title }}')">
+              👁 View
+            </button>
+            <a href="{{ resource.pdf_file.url }}" download class="btn btn-outline btn-sm">⬇ Download</a>
+            <a href="{% url 'delete_resource' resource.pk %}"
+               class="btn btn-danger btn-sm"
+               onclick="return confirm('Delete {{ resource.title }}?')">🗑 Delete</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <p>No PDFs uploaded yet. Use the form to add your first study material!</p>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<!-- PDF Viewer Modal -->
+<div class="modal-overlay hidden" id="pdfViewerModal">
+  <div class="pdf-viewer-modal">
+    <div class="pdf-viewer-header">
+      <span class="pdf-viewer-title" id="pdfViewerTitle">PDF Viewer</span>
+      <button class="pdf-close-btn" onclick="closePDF()">✕ Close</button>
+    </div>
+    <iframe id="pdfFrame" class="pdf-iframe" src="" title="PDF Viewer"></iframe>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function openPDF(url, title) {
+  document.getElementById('pdfFrame').src = url;
+  document.getElementById('pdfViewerTitle').textContent = title;
+  document.getElementById('pdfViewerModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePDF() {
+  document.getElementById('pdfFrame').src = '';
+  document.getElementById('pdfViewerModal').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+// File drop zone label update
+const pdfInput = document.querySelector('input[type="file"]');
+const dropText = document.getElementById('dropText');
+if (pdfInput) {
+  pdfInput.addEventListener('change', () => {
+    if (pdfInput.files.length > 0) {
+      dropText.textContent = pdfInput.files[0].name;
+    }
+  });
+}
+
+// Close modal on overlay click
+document.getElementById('pdfViewerModal').addEventListener('click', function(e) {
+  if (e.target === this) closePDF();
+});
+</script>
+{% endblock %}

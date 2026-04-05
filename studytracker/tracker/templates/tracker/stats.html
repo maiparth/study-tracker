@@ -1,0 +1,80 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}StudyTracker – Stats{% endblock %}
+{% block body_class %}page-stats{% endblock %}
+{% block nav_stats %}active{% endblock %}
+
+{% block content %}
+<div class="stats-wrapper">
+  <div class="page-header">
+    <h1 class="page-title">📊 Study Stats</h1>
+    <p class="page-sub">Track your progress and celebrate your wins.</p>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <div class="summary-card">
+      <div class="summary-icon">✅</div>
+      <div class="summary-value">{{ total_sessions }}</div>
+      <div class="summary-label">Tasks Completed</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-icon">⏱</div>
+      <div class="summary-value">{{ total_time }}</div>
+      <div class="summary-label">Total Study Time</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-icon">🍅</div>
+      <div class="summary-value">{{ total_pomodoros }}</div>
+      <div class="summary-label">Pomodoros Done</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-icon">⚡</div>
+      <div class="summary-value">{{ avg_time }}</div>
+      <div class="summary-label">Avg. Session Time</div>
+    </div>
+  </div>
+
+  <!-- Session Table -->
+  <div class="table-section">
+    <h2 class="section-title">Session History</h2>
+    {% if sessions %}
+    <div class="table-wrapper">
+      <table class="sessions-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Task Name</th>
+            <th>Completed At</th>
+            <th>Time Taken</th>
+            <th>Pomodoros</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for session in sessions %}
+          <tr>
+            <td class="row-num">{{ forloop.counter }}</td>
+            <td class="task-cell">{{ session.task_name }}</td>
+            <td class="date-cell">{{ session.completed_at|date:"d M Y, H:i" }}</td>
+            <td class="time-cell">{{ session.time_taken_display }}</td>
+            <td class="pomo-cell">🍅 × {{ session.pomodoros_completed }}</td>
+            <td class="action-cell">
+              <a href="{% url 'delete_session' session.pk %}"
+                 class="btn-delete"
+                 onclick="return confirm('Delete this session record?')">✕</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <p>No sessions recorded yet. Complete a task on the <a href="{% url 'home' %}">Timer page</a> to see your stats!</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
