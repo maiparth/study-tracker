@@ -1,10 +1,10 @@
-readme_content = """# 📚 StudyTracker — WPL Mini Project
+readme_content = """#  StudyTracker — WPL Mini Project
 
 A Django-based Pomodoro study tracker with session statistics and a PDF resource library.
 
 ---
 
-## 🚀 Tech Stack
+##  Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
@@ -17,36 +17,44 @@ A Django-based Pomodoro study tracker with session statistics and a PDF resource
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
-\`\`\`
+```
 studytracker/
 ├── manage.py
 ├── db.sqlite3                  ← auto-created after migrate
-├── media/pdfs/                 ← uploaded PDFs stored here
+├── media/
+│   └── pdfs/                   ← uploaded PDFs stored here
 ├── static/
-│   ├── css/style.css           ← Lo-Fi stylesheet
+│   ├── css/
+│   │   └── style.css           ← Lo-Fi stylesheet
 │   └── js/
 │       ├── timer.js            ← Pomodoro timer logic
 │       └── main.js             ← shared utilities
-├── studytracker/               ← project config
+├── studytracker/               ← project config package
+│   ├── __init__.py
 │   ├── settings.py
-│   └── urls.py
-└── tracker/                    ← main app
+│   ├── urls.py
+│   └── wsgi.py
+└── tracker/                    ← main Django app
+    ├── __init__.py
     ├── models.py               ← StudySession, StudyResource
-    ├── views.py
+    ├── views.py                ← home, stats, resources, AJAX save
     ├── urls.py
     ├── forms.py
+    ├── migrations/
+    │   ├── __init__.py
+    │   └── 0001_initial.py
     └── templates/tracker/
         ├── base.html
-        ├── home.html           ← Page 1: Timer
-        ├── stats.html          ← Page 2: Stats
+        ├── home.html           ← Page 1: Pomodoro Timer
+        ├── stats.html          ← Page 2: Session Stats
         └── resources.html      ← Page 3: PDF Library
-\`\`\`
+```
 
 ---
 
-## ⚙️ Setup
+##  Setup
 
 \`\`\`bash
 # 1. Create and activate virtual environment
@@ -70,7 +78,7 @@ Open **http://127.0.0.1:8000** in your browser.
 
 ---
 
-## ✨ Features
+##  Features
 
 ### Page 1 – Timer (`/`)
 - Enter a task name → Start button activates
@@ -90,7 +98,7 @@ Open **http://127.0.0.1:8000** in your browser.
 
 ---
 
-## 🗄️ Database Models
+##  Database Models
 
 **StudySession**
 | Field | Type | Purpose |
@@ -111,7 +119,7 @@ Open **http://127.0.0.1:8000** in your browser.
 
 ---
 
-## 🔗 URL Reference
+##  URL Reference
 
 | URL | View | Purpose |
 |-----|------|---------|
@@ -125,7 +133,7 @@ Open **http://127.0.0.1:8000** in your browser.
 
 ---
 
-## 🎨 Customisation
+##  Customisation
 
 **Change timer durations** — edit `static/js/timer.js`:
 \`\`\`js
@@ -143,7 +151,7 @@ const BREAK_DURATION =  5 * 60;  // change 5
 
 ---
 
-## 👥 Group Members
+##  Group Members
 
 | Sl. | Name | Batch | Roll No. | Reg. No. |
 |-----|------|-------|----------|----------|
