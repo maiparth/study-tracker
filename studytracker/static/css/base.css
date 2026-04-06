@@ -1,21 +1,21 @@
 :root {
-  --bg: #fdf6ec;
-  --surface: #fff8f0;
-  --surface2: #f5e6d3;
-  --border: #e8d5c0;
+  --bg: #1a1410;
+  --surface: #2a2218;
+  --surface2: #3a3228;
+  --border: #4a4238;
   --accent: #e07a5f;
   --accent2: #81b29a;
   --accent3: #f2cc8f;
   --accent4: #a78bfa;
-  --text: #3d3029;
-  --text-muted: #8c7b70;
-  --danger: #e07a5f;
-  --shadow: 0 4px 20px rgba(61, 48, 41, 0.08);
-  --shadow-lg: 0 8px 40px rgba(61, 48, 41, 0.14);
+  --text: #f5e6d3;
+  --text-muted: #a89e92;
+  --danger: #ff8a73;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.6);
   --radius: 16px;
   --radius-sm: 8px;
-  /* --font: "Georgia", "Times New Roman", serif; */
-  --font: "Calibri", "Candara", "Segoe", sans-serif;
+  --font: "Georgia", "Times New Roman", serif;
+  /* --font: "Calibri", "Candara", "Segoe", sans-serif; */
   --font-ui: "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 
@@ -36,10 +36,10 @@ body {
   min-height: 100vh;
   background-image:
     radial-gradient(circle at 20% 20%,
-      rgba(224, 122, 95, 0.06) 0%,
+      rgba(224, 122, 95, 0.12) 0%,
       transparent 50%),
     radial-gradient(circle at 80% 80%,
-      rgba(129, 178, 154, 0.06) 0%,
+      rgba(129, 178, 154, 0.12) 0%,
       transparent 50%);
 }
 
@@ -168,8 +168,8 @@ body {
 }
 
 .btn-start:hover:not(:disabled) {
-  background: #c9674f;
-  box-shadow: 0 4px 12px rgba(224, 122, 95, 0.4);
+  background: #d4644c;
+  box-shadow: 0 4px 12px rgba(224, 122, 95, 0.5);
 }
 
 .btn-start:disabled {
@@ -184,7 +184,7 @@ body {
 }
 
 .btn-stop:hover {
-  background: #eeddd0;
+  background: #4a4238;
 }
 
 .btn-resume,
@@ -195,7 +195,7 @@ body {
 
 .btn-resume:hover,
 .btn-done:hover {
-  background: #6a9c83;
+  background: #7fa890;
 }
 
 .btn-done:hover {
@@ -209,17 +209,17 @@ body {
 }
 
 .btn-outline:hover {
-  background: rgba(224, 122, 95, 0.08);
+  background: rgba(224, 122, 95, 0.15);
 }
 
 .btn-danger {
-  background: #fde8e4;
+  background: #2a1f19;
   color: var(--danger);
-  border: 1.5px solid #f5c9c0;
+  border: 1.5px solid #4a3a33;
 }
 
 .btn-danger:hover {
-  background: #f9d0c8;
+  background: #3a2a23;
 }
 
 .btn-full {
