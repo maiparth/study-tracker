@@ -1,8 +1,11 @@
 {% extends 'tracker/base.html' %}
-
+{% load static %}
 {% block title %}StudyTracker – Stats{% endblock %}
 {% block body_class %}page-stats{% endblock %}
 {% block nav_stats %}active{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/stats.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="stats-wrapper">

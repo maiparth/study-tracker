@@ -1,5 +1,9 @@
 {% extends 'tracker/base.html' %}
+{% load static %}
 {% block title %}Register - StudyTracker{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="container">

@@ -1,8 +1,11 @@
 {% extends 'tracker/base.html' %}
-
+{% load static %}
 {% block title %}StudyTracker - Resources{% endblock %}
 {% block body_class %}page-resources{% endblock %}
 {% block nav_resources %}active{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/resources.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="resources-wrapper">

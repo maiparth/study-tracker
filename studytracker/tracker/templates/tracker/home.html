@@ -4,6 +4,9 @@
 {% block title %}StudyTracker – Timer{% endblock %}
 {% block body_class %}page-home{% endblock %}
 {% block nav_home %}active{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
 
 {% block content %}
 {% if user.is_authenticated %}
@@ -98,7 +101,6 @@ const SAVE_URL = "{% url 'save_session' %}";
 {% else %}
 <div class="container">
   <h1>Welcome to StudyTracker</h1>
-  {% comment %} <p>Please <a href="{% url 'login' %}">login</a> or <a href="{% url 'register' %}">register</a> to start tracking your study sessions.</p> {% endcomment %}
   <a href="{% url 'login' %}" class="btn btn-primary">Get Started</a>
 </div>
 {% endif %}

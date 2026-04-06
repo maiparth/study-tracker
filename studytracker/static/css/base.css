@@ -1,0 +1,263 @@
+:root {
+  --bg: #fdf6ec;
+  --surface: #fff8f0;
+  --surface2: #f5e6d3;
+  --border: #e8d5c0;
+  --accent: #e07a5f;
+  --accent2: #81b29a;
+  --accent3: #f2cc8f;
+  --accent4: #a78bfa;
+  --text: #3d3029;
+  --text-muted: #8c7b70;
+  --danger: #e07a5f;
+  --shadow: 0 4px 20px rgba(61, 48, 41, 0.08);
+  --shadow-lg: 0 8px 40px rgba(61, 48, 41, 0.14);
+  --radius: 16px;
+  --radius-sm: 8px;
+  --font: "Georgia", "Times New Roman", serif;
+  --font-ui: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  min-height: 100vh;
+  background-image:
+    radial-gradient(circle at 20% 20%,
+      rgba(224, 122, 95, 0.06) 0%,
+      transparent 50%),
+    radial-gradient(circle at 80% 80%,
+      rgba(129, 178, 154, 0.06) 0%,
+      transparent 50%);
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: 64px;
+  background: var(--surface);
+  border-bottom: 1.5px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-logo {
+  font-size: 1.5rem;
+}
+
+.nav-title {
+  font-family: var(--font);
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+}
+
+.nav-links {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 6px 16px;
+  border-radius: 99px;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  background: var(--surface2);
+  color: var(--accent);
+}
+
+.nav-user {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-right: 1rem;
+  padding: 6px 16px;
+}
+
+.main-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+}
+
+.container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 3rem 2rem;
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.5rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 24px;
+  border-radius: 99px;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  padding: 1rem 2.5rem;
+  font-size: 1.125rem;
+  background-color: var(--accent);
+  color: white;
+  border: none;
+  box-shadow: var(--shadow);
+}
+
+.btn-primary:hover {
+  background-color: var(--accent3);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-start {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-start:hover:not(:disabled) {
+  background: #c9674f;
+  box-shadow: 0 4px 12px rgba(224, 122, 95, 0.4);
+}
+
+.btn-start:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-stop {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1.5px solid var(--border);
+}
+
+.btn-stop:hover {
+  background: #eeddd0;
+}
+
+.btn-resume,
+.btn-done {
+  background: var(--accent2);
+  color: #fff;
+}
+
+.btn-resume:hover,
+.btn-done:hover {
+  background: #6a9c83;
+}
+
+.btn-done:hover {
+  box-shadow: 0 4px 12px rgba(129, 178, 154, 0.4);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+}
+
+.btn-outline:hover {
+  background: rgba(224, 122, 95, 0.08);
+}
+
+.btn-danger {
+  background: #fde8e4;
+  color: var(--danger);
+  border: 1.5px solid #f5c9c0;
+}
+
+.btn-danger:hover {
+  background: #f9d0c8;
+}
+
+.btn-full {
+  width: 100%;
+  justify-content: center;
+}
+
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 0.82rem;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.page-title {
+  font-family: var(--font);
+  font-size: 2rem;
+  color: var(--text);
+  margin-bottom: 0.3rem;
+}
+
+.page-sub {
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--text-muted);
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state a {
+  color: var(--accent);
+}
