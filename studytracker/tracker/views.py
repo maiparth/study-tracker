@@ -3,6 +3,9 @@ from datetime import timedelta
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, FileResponse, Http404
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.forms import UserCreationForm
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.utils.dateparse import parse_date
@@ -17,6 +20,7 @@ def home(request):
     return render(request, 'tracker/home.html')
 
 
+@login_required
 @csrf_exempt
 def save_session(request):
     """AJAX endpoint: save a completed task to DB."""
@@ -28,6 +32,7 @@ def save_session(request):
 
         if task_name:
             session = StudySession.objects.create(
+                user=request.user,
                 task_name=task_name,
                 time_taken_seconds=time_taken_seconds,
                 pomodoros_completed=pomodoros,
@@ -38,12 +43,13 @@ def save_session(request):
     return JsonResponse({'status': 'error'}, status=405)
 
 
+@login_required
 def stats(request):
     """Stats page: list of all completed sessions."""
     start_date = parse_date(request.GET.get('start_date', ''))
     end_date = parse_date(request.GET.get('end_date', ''))
 
-    sessions = StudySession.objects.all()
+    sessions = StudySession.objects.filter(user=request.user)
     if start_date:
         sessions = sessions.filter(completed_at__date__gte=start_date)
     if end_date:
@@ -159,10 +165,11 @@ def stats(request):
     return render(request, 'tracker/stats.html', context)
 
 
+@login_required
 def resources(request):
     """Resources page: PDF library."""
-    all_resources = StudyResource.objects.all()
-    subjects = StudyResource.objects.values_list('subject', flat=True).distinct()
+    all_resources = StudyResource.objects.filter(user=request.user)
+    subjects = StudyResource.objects.filter(user=request.user).values_list('subject', flat=True).distinct()
     subject_filter = request.GET.get('subject', '')
     if subject_filter:
         all_resources = all_resources.filter(subject=subject_filter)
@@ -177,18 +184,20 @@ def resources(request):
     return render(request, 'tracker/resources.html', context)
 
 
+@login_required
 def upload_resource(request):
     """Upload a new PDF resource."""
     if request.method == 'POST':
         form = StudyResourceForm(request.POST, request.FILES)
         if form.is_valid():
+            form.instance.user = request.user
             form.save()
             messages.success(request, 'Resource uploaded successfully.')
             return redirect('resources')
 
         messages.error(request, 'Upload failed. Please fix the highlighted fields and try again.')
-        all_resources = StudyResource.objects.all()
-        subjects = StudyResource.objects.values_list('subject', flat=True).distinct()
+        all_resources = StudyResource.objects.filter(user=request.user)
+        subjects = StudyResource.objects.filter(user=request.user).values_list('subject', flat=True).distinct()
         context = {
             'resources': all_resources,
             'subjects': [s for s in subjects if s],
@@ -200,17 +209,19 @@ def upload_resource(request):
     return redirect('resources')
 
 
+@login_required
 def delete_resource(request, pk):
     """Delete a PDF resource."""
-    resource = get_object_or_404(StudyResource, pk=pk)
+    resource = get_object_or_404(StudyResource, pk=pk, user=request.user)
     resource.pdf_file.delete()
     resource.delete()
     return redirect('resources')
 
 
+@login_required
 def view_resource(request, pk):
     """Open a PDF resource in browser."""
-    resource = get_object_or_404(StudyResource, pk=pk)
+    resource = get_object_or_404(StudyResource, pk=pk, user=request.user)
     if not resource.pdf_file:
         raise Http404('Resource file not found')
 
@@ -220,9 +231,10 @@ def view_resource(request, pk):
     return response
 
 
+@login_required
 def download_resource(request, pk):
     """Download a PDF resource file."""
-    resource = get_object_or_404(StudyResource, pk=pk)
+    resource = get_object_or_404(StudyResource, pk=pk, user=request.user)
     if not resource.pdf_file:
         raise Http404('Resource file not found')
 
@@ -230,8 +242,44 @@ def download_resource(request, pk):
     return FileResponse(resource.pdf_file.open('rb'), as_attachment=True, filename=file_name)
 
 
+@login_required
 def delete_session(request, pk):
     """Delete a study session record."""
-    session = get_object_or_404(StudySession, pk=pk)
+    session = get_object_or_404(StudySession, pk=pk, user=request.user)
     session.delete()
     return redirect('stats')
+
+
+def login_view(request):
+    """Login view."""
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('home')
+        else:
+            messages.error(request, 'Invalid username or password.')
+    return render(request, 'tracker/login.html')
+
+
+def register_view(request):
+    """Register view."""
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('home')
+        else:
+            messages.error(request, 'Registration failed. Please fix the errors.')
+    else:
+        form = UserCreationForm()
+    return render(request, 'tracker/register.html', {'form': form})
+
+
+def logout_view(request):
+    """Logout view."""
+    logout(request)
+    return redirect('home')

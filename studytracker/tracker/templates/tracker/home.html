@@ -6,6 +6,7 @@
 {% block nav_home %}active{% endblock %}
 
 {% block content %}
+{% if user.is_authenticated %}
 <div class="timer-wrapper">
 
   <!-- Task Input Section -->
@@ -94,6 +95,13 @@
 const CSRF_TOKEN = "{{ csrf_token }}";
 const SAVE_URL = "{% url 'save_session' %}";
 </script>
+{% else %}
+<div class="container">
+  <h1>Welcome to StudyTracker</h1>
+  {% comment %} <p>Please <a href="{% url 'login' %}">login</a> or <a href="{% url 'register' %}">register</a> to start tracking your study sessions.</p> {% endcomment %}
+  <a href="{% url 'login' %}" class="btn btn-primary">Get Started</a>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_scripts %}

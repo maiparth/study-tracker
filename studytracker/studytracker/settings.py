@@ -3,7 +3,7 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-studytracker-wpl-mini-project-secret-key-2024'
+SECRET_KEY = 'y80^z9+lotj6=3=r3&=ksywi(ab3qx6^$@r1tkg3qnl9y*3s7g'
 
 DEBUG = True
 
@@ -48,6 +48,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'studytracker.wsgi.application'
+
+LOGIN_URL = '/login/'
 
 DATABASES = {
     'default': {
