@@ -1,3 +1,7 @@
+img {
+  vertical-align: middle;
+}
+
 .timer-wrapper {
   display: flex;
   flex-direction: column;

@@ -26,6 +26,24 @@
 
 html {
   scroll-behavior: smooth;
+img {
+  vertical-align: middle;
+html {
+  scroll-behavior: smooth;
+}
+
+img {
+  vertical-align: middle;
+}
+html {
+  scroll-behavior: smooth;
+}
+
+img {
+  vertical-align: middle;
+}
+}
+
 }
 
 body {
@@ -240,6 +258,14 @@ body {
   font-size: 2rem;
   color: var(--text);
   margin-bottom: 0.3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.page-title img {
+  display: block;
+  height: auto;
 }
 
 .page-sub {

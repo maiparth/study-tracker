@@ -1,3 +1,7 @@
+img {
+  vertical-align: middle;
+}
+
 .resources-wrapper {
   max-width: 1050px;
   margin: 0 auto;
@@ -30,6 +34,14 @@
   font-size: 1.15rem;
   margin-bottom: 1.25rem;
   color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.panel-title img {
+  display: block;
+  height: auto;
 }
 
 .upload-form {
