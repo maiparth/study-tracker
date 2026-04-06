@@ -14,7 +14,8 @@
   --shadow-lg: 0 8px 40px rgba(61, 48, 41, 0.14);
   --radius: 16px;
   --radius-sm: 8px;
-  --font: "Georgia", "Times New Roman", serif;
+  /* --font: "Georgia", "Times New Roman", serif; */
+  --font: "Calibri", "Candara", "Segoe", sans-serif;
   --font-ui: "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 
