@@ -1,7 +1,7 @@
 > [!CAUTION]
-> This project is DEVELOPMENT ONLY. Please make necessary changes if you want to use it in production.
+> This project is **DEVELOPMENT ONLY**. Please make necessary changes if you want to use it in production.
 > 
-> Risk MAJOR SECURITY THREATS IF USED IN PRODUCTION
+> Risk **<ins>MAJOR SECURITY THREATS</ins>** IF USED IN PRODUCTION
 
 # StudyTracker – WPL Mini Project
 
