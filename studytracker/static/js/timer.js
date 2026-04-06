@@ -3,40 +3,41 @@
 // ============================================================
 
 const FOCUS_DURATION = 25 * 60;   // 1500 seconds
-const BREAK_DURATION = 5  * 60;   //  300 seconds
-const CIRCUMFERENCE  = 2 * Math.PI * 108; // ≈ 678.6
+const BREAK_DURATION = 5 * 60;   //  300 seconds
+const CIRCUMFERENCE = 2 * Math.PI * 108; // ≈ 678.6
 const TIMER_STORAGE_KEY = 'studytracker.timerState';
 
 // ---- State ----
-let taskName           = '';
-let timerInterval      = null;
-let secondsLeft        = FOCUS_DURATION;
+let taskName = '';
+let timerInterval = null;
+let secondsLeft = FOCUS_DURATION;
 let totalSecondsElapsed = 0;
-let isBreak            = false;
-let pomodoros          = 0;
-let running            = false;
-let breakCountdownId   = null;
-let sessionStartAt     = null;
+let isBreak = false;
+let pomodoros = 0;
+let running = false;
+let breakCountdownId = null;
+let sessionStartAt = null;
 let pausedAccumulatedMs = 0;
-let currentPhaseEndsAt  = null;
-let pausedAt           = null;
+let currentPhaseEndsAt = null;
+let pausedAt = null;
 
 // ---- DOM refs ----
-const taskInput       = document.getElementById('taskNameInput');
-const startBtn        = document.getElementById('startBtn');
-const stopBtn         = document.getElementById('stopBtn');
-const resumeBtn       = document.getElementById('resumeBtn');
-const doneBtn         = document.getElementById('doneBtn');
-const timerDisplay    = document.getElementById('timerDisplay');
-const timerMode       = document.getElementById('timerMode');
-const pomodoroCount   = document.getElementById('pomodoroCount');
-const ringProgress    = document.getElementById('ringProgress');
-const timerSection    = document.getElementById('timerSection');
-const taskInputSec    = document.getElementById('taskInputSection');
-const timerTaskBadge  = document.getElementById('timerTaskBadge');
-const congratsModal   = document.getElementById('congratsModal');
-const breakModal      = document.getElementById('breakModal');
-const breakTimerDisp  = document.getElementById('breakTimerDisplay');
+const taskInput = document.getElementById('taskNameInput');
+const startBtn = document.getElementById('startBtn');
+const stopBtn = document.getElementById('stopBtn');
+const resumeBtn = document.getElementById('resumeBtn');
+const doneBtn = document.getElementById('doneBtn');
+const statsBtn = document.getElementById('statsBtn')
+const timerDisplay = document.getElementById('timerDisplay');
+const timerMode = document.getElementById('timerMode');
+const pomodoroCount = document.getElementById('pomodoroCount');
+const ringProgress = document.getElementById('ringProgress');
+const timerSection = document.getElementById('timerSection');
+const taskInputSec = document.getElementById('taskInputSection');
+const timerTaskBadge = document.getElementById('timerTaskBadge');
+const congratsModal = document.getElementById('congratsModal');
+const breakModal = document.getElementById('breakModal');
+const breakTimerDisp = document.getElementById('breakTimerDisplay');
 
 // ---- Storage helpers ----
 function saveTimerState() {
@@ -147,12 +148,13 @@ taskInput.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !startBtn.disabled) startTimer();
 });
 
-startBtn.addEventListener('click',                startTimer);
-stopBtn.addEventListener('click',                 pauseTimer);
-resumeBtn.addEventListener('click',               resumeTimer);
-doneBtn.addEventListener('click',                 markDone);
+startBtn.addEventListener('click', startTimer);
+stopBtn.addEventListener('click', pauseTimer);
+resumeBtn.addEventListener('click', resumeTimer);
+doneBtn.addEventListener('click', markDone);
+statsBtn.addEventListener('click', resetAll);
 document.getElementById('modalNewTask')
-        .addEventListener('click',                resetAll);
+  .addEventListener('click', resetAll);
 
 window.addEventListener('beforeunload', saveTimerState);
 
@@ -188,15 +190,15 @@ function startTimer() {
   timerSection.classList.remove('hidden');
   timerTaskBadge.textContent = taskName;
 
-  isBreak              = false;
-  secondsLeft          = FOCUS_DURATION;
-  pomodoros            = 0;
-  totalSecondsElapsed  = 0;
-  running              = true;
-  sessionStartAt       = Date.now();
-  pausedAccumulatedMs  = 0;
-  currentPhaseEndsAt   = Date.now() + FOCUS_DURATION * 1000;
-  pausedAt             = null;
+  isBreak = false;
+  secondsLeft = FOCUS_DURATION;
+  pomodoros = 0;
+  totalSecondsElapsed = 0;
+  running = true;
+  sessionStartAt = Date.now();
+  pausedAccumulatedMs = 0;
+  currentPhaseEndsAt = Date.now() + FOCUS_DURATION * 1000;
+  pausedAt = null;
 
   startCountdown();
   startElapsedCounter();
@@ -245,11 +247,11 @@ function updateDisplay() {
   const mins = Math.floor(secondsLeft / 60);
   const secs = secondsLeft % 60;
   timerDisplay.textContent =
-    `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+    `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 
   applyModeToUI();
 
-  const total    = isBreak ? BREAK_DURATION : FOCUS_DURATION;
+  const total = isBreak ? BREAK_DURATION : FOCUS_DURATION;
   const fraction = secondsLeft / total;
   ringProgress.style.strokeDashoffset = CIRCUMFERENCE * fraction;
 }
@@ -288,7 +290,7 @@ function startElapsedCounter() {
 // ============================================================
 
 function beginBreak() {
-  isBreak     = true;
+  isBreak = true;
   secondsLeft = BREAK_DURATION;
   currentPhaseEndsAt = Date.now() + BREAK_DURATION * 1000;
   updateDisplay();
@@ -316,7 +318,7 @@ function updateBreakDisplay(secs) {
   const m = Math.floor(secs / 60);
   const s = secs % 60;
   breakTimerDisp.textContent =
-    `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
 function showBreakModal() {
@@ -348,9 +350,9 @@ async function markDone() {
         'X-CSRFToken': CSRF_TOKEN
       },
       body: JSON.stringify({
-        task_name:           taskName,
-        time_taken_seconds:  totalSecondsElapsed,
-        pomodoros:           pomodoros
+        task_name: taskName,
+        time_taken_seconds: totalSecondsElapsed,
+        pomodoros: pomodoros
       })
     });
     if (!resp.ok) console.warn('Save failed', await resp.text());
@@ -359,12 +361,12 @@ async function markDone() {
   }
 
   // Populate & show congratulations modal
-  document.getElementById('modalTaskName').textContent   = `"${taskName}"`;
-  document.getElementById('modalPomodoros').textContent  = `🍅 × ${pomodoros}`;
+  document.getElementById('modalTaskName').textContent = `"${taskName}"`;
+  document.getElementById('modalPomodoros').textContent = `🍅 × ${pomodoros}`;
   const m = Math.floor(totalSecondsElapsed / 60);
   const s = totalSecondsElapsed % 60;
-  document.getElementById('modalTimeTaken').textContent  =
-    `${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
+  document.getElementById('modalTimeTaken').textContent =
+    `${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s`;
 
   congratsModal.classList.remove('hidden');
   clearTimerState();
@@ -379,7 +381,7 @@ function resetAll() {
   timerSection.classList.add('hidden');
   taskInputSec.classList.remove('hidden');
 
-  taskInput.value  = '';
+  taskInput.value = '';
   startBtn.disabled = true;
 
   clearInterval(timerInterval);
@@ -398,6 +400,6 @@ function resetAll() {
   // Reset ring
   ringProgress.style.strokeDashoffset = 0;
   timerDisplay.textContent = '25:00';
-  timerMode.textContent    = 'FOCUS';
+  timerMode.textContent = 'FOCUS';
   clearTimerState();
 }
