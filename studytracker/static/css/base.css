@@ -1,21 +1,20 @@
 :root {
-  --bg: #1a1410;
-  --surface: #2a2218;
-  --surface2: #3a3228;
-  --border: #4a4238;
-  --accent: #e07a5f;
-  --accent2: #81b29a;
-  --accent3: #f2cc8f;
+  --bg: #2e3440;
+  --surface: #3b4252;
+  --surface2: #5a657c;
+  --border: #5e81ac;
+  --accent: #7ab14b;
+  --accent2: #7ab14b;
+  --accent3: #dfb064;
   --accent4: #a78bfa;
-  --text: #f5e6d3;
-  --text-muted: #a89e92;
-  --danger: #ff8a73;
-  --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.6);
+  --text: #88cbee;
+  --text-muted: #ffffff;
+  --danger: #e07a5f;
+  --shadow: 0 4px 20px rgba(61, 48, 41, 0.08);
+  --shadow-lg: 0 8px 40px rgba(61, 48, 41, 0.14);
   --radius: 16px;
   --radius-sm: 8px;
   --font: "Georgia", "Times New Roman", serif;
-  /* --font: "Calibri", "Candara", "Segoe", sans-serif; */
   --font-ui: "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 
@@ -34,13 +33,13 @@ body {
   color: var(--text);
   font-family: var(--font-ui);
   min-height: 100vh;
-  background-image:
+  /* background-image:
     radial-gradient(circle at 20% 20%,
       rgba(224, 122, 95, 0.12) 0%,
       transparent 50%),
     radial-gradient(circle at 80% 80%,
       rgba(129, 178, 154, 0.12) 0%,
-      transparent 50%);
+      transparent 50%); */
 }
 
 .navbar {
