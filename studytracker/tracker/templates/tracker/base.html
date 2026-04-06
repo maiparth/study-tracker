@@ -15,7 +15,7 @@
       <span class="nav-logo"><!--📚--><img src="{% static 'study.png' %}" 
      alt="Stats Icon" 
      style="width:30px; height:30px;"></span>
-      <span class="nav-title">StudyTracker</span>
+      <a href="{% url 'home' %}" style="text-decoration: none;"><span class="nav-title">StudyTracker</span></a>
     </div>
     <div class="nav-links">
       {% if user.is_authenticated %}
