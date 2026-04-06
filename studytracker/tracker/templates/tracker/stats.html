@@ -49,22 +49,28 @@
   <!-- Summary Cards -->
   <div class="summary-cards">
     <div class="summary-card">
-      <div class="summary-icon">✅</div>
+      <div class="summary-icon"><img src="{% static 'task.png' %}" 
+     alt="Stats Icon" 
+     style="width:50px; height:50px;"></div>
       <div class="summary-value">{{ total_sessions }}</div>
       <div class="summary-label">Tasks Completed</div>
     </div>
     <div class="summary-card">
-      <div class="summary-icon">⏱</div>
+      <div class="summary-icon"><img src="{% static 'hours.png' %}" 
+     alt="Stats Icon" 
+     style="width:60px; height:60px;"></div>
       <div class="summary-value">{{ total_time }}</div>
       <div class="summary-label">Total Study Time</div>
     </div>
     <div class="summary-card">
-      <div class="summary-icon">🍅</div>
+      <div class="summary-icon"><h2>🍅</h2></div>
       <div class="summary-value">{{ total_pomodoros }}</div>
       <div class="summary-label">Pomodoros Done</div>
     </div>
     <div class="summary-card">
-      <div class="summary-icon">⚡</div>
+      <div class="summary-icon"><img src="{% static 'session.png' %}" 
+     alt="Stats Icon" 
+     style="width:60px; height:60px;"></div>
       <div class="summary-value">{{ avg_time }}</div>
       <div class="summary-label">Avg. Session Time</div>
     </div>
