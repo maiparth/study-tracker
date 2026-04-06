@@ -1,3 +1,8 @@
+> [!CAUTION]
+> This project is DEVELOPMENT ONLY. Please make necessary changes if you want to use it in production.
+> 
+> Risk MAJOR SECURITY THREATS IF USED IN PRODUCTION
+
 # StudyTracker – WPL Mini Project
 
 A Django-based Pomodoro study tracker with session stats and a PDF resource library.
