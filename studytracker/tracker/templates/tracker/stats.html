@@ -273,7 +273,7 @@
       context.stroke();
 
       const labelSeconds = maxSeconds - (maxSeconds / 4) * i;
-      context.fillStyle = '#8c7b70';
+      context.fillStyle = '#cccccc';
       context.font = '12px Segoe UI, system-ui, sans-serif';
       context.textAlign = 'right';
       context.textBaseline = 'middle';
@@ -330,7 +330,7 @@
       context.arc(point.x, point.y, pointRadius, 0, Math.PI * 2);
       context.fill();
 
-      context.fillStyle = '#3d3029';
+      context.fillStyle = '#ffffff';
       context.font = '600 12px Segoe UI, system-ui, sans-serif';
       context.textAlign = 'center';
 
@@ -343,7 +343,7 @@
         context.fillText(`${formatHours(item.seconds)}h`, point.x, point.y - 10);
       }
 
-      context.fillStyle = '#8c7b70';
+      context.fillStyle = '#cccccc';
       context.font = '12px Segoe UI, system-ui, sans-serif';
       context.textBaseline = 'top';
       const labelY = topPad + chartHeight + 10;
