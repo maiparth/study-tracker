@@ -11,4 +11,7 @@ urlpatterns = [
     path('resource/download/<int:pk>/', views.download_resource, name='download_resource'),
     path('delete-resource/<int:pk>/', views.delete_resource, name='delete_resource'),
     path('delete-session/<int:pk>/', views.delete_session, name='delete_session'),
+    path('login/', views.login_view, name='login'),
+    path('register/', views.register_view, name='register'),
+    path('logout/', views.logout_view, name='logout'),
 ]
