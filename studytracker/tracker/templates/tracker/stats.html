@@ -11,6 +11,35 @@
     <p class="page-sub">Track your progress and celebrate your wins.</p>
   </div>
 
+  <div class="filter-card">
+    <form method="get" class="date-filter-form">
+      <div class="date-filter-field">
+        <label for="startDate">Start date</label>
+        <input type="date" id="startDate" name="start_date" value="{{ start_date }}">
+      </div>
+      <div class="date-filter-field">
+        <label for="endDate">End date</label>
+        <input type="date" id="endDate" name="end_date" value="{{ end_date }}">
+      </div>
+      <div class="date-filter-actions">
+        <button type="submit" class="btn btn-start">Apply Filter</button>
+        <a href="{% url 'stats' %}" class="btn btn-outline">Reset</a>
+      </div>
+    </form>
+    {% if start_date_display or end_date_display %}
+    <div class="filter-summary">
+      Showing data
+      {% if start_date_display and end_date_display %}
+        from {{ start_date_display }} to {{ end_date_display }}
+      {% elif start_date_display %}
+        from {{ start_date_display }} onward
+      {% elif end_date_display %}
+        up to {{ end_date_display }}
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
   <!-- Summary Cards -->
   <div class="summary-cards">
     <div class="summary-card">
@@ -32,6 +61,115 @@
       <div class="summary-icon">⚡</div>
       <div class="summary-value">{{ avg_time }}</div>
       <div class="summary-label">Avg. Session Time</div>
+    </div>
+  </div>
+
+  <!-- Daily Study Chart -->
+  <div class="chart-section">
+    <div class="chart-header">
+      <h2 class="section-title">Daily Study Trend</h2>
+      <p class="chart-subtitle">A line graph of daily study time in the selected date range.</p>
+    </div>
+
+    {% if daily_study_data %}
+    <div class="chart-card">
+      <canvas id="dailyStudyChart" class="daily-chart" aria-label="Daily study graph" role="img"></canvas>
+    </div>
+    <div class="daily-summary-table-wrap">
+      <table class="daily-summary-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Study Time</th>
+            <th>Sessions</th>
+            <th>Pomodoros</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for day in daily_study_data %}
+          <tr>
+            <td>{{ day.date }}</td>
+            <td>{{ day.time_display }}</td>
+            <td>{{ day.sessions }}</td>
+            <td>🍅 × {{ day.pomodoros }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state chart-empty">
+      <div class="empty-icon">📈</div>
+      <p>No daily data yet. Complete a few sessions to see your study graph here.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="summary-grid">
+    <div class="summary-table-card">
+      <div class="summary-table-header">
+        <h2 class="section-title">Weekly Summary</h2>
+        <p class="chart-subtitle">Totals grouped by week.</p>
+      </div>
+      {% if weekly_summary_data %}
+      <div class="summary-table-wrap">
+        <table class="period-summary-table">
+          <thead>
+            <tr>
+              <th>Week</th>
+              <th>Study Time</th>
+              <th>Sessions</th>
+              <th>Pomodoros</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for week in weekly_summary_data %}
+            <tr>
+              <td>{{ week.period }}</td>
+              <td>{{ week.time_display }}</td>
+              <td>{{ week.sessions }}</td>
+              <td>🍅 × {{ week.pomodoros }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-mini">No weekly data for the selected range.</div>
+      {% endif %}
+    </div>
+
+    <div class="summary-table-card">
+      <div class="summary-table-header">
+        <h2 class="section-title">Monthly Summary</h2>
+        <p class="chart-subtitle">Totals grouped by month.</p>
+      </div>
+      {% if monthly_summary_data %}
+      <div class="summary-table-wrap">
+        <table class="period-summary-table">
+          <thead>
+            <tr>
+              <th>Month</th>
+              <th>Study Time</th>
+              <th>Sessions</th>
+              <th>Pomodoros</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for month in monthly_summary_data %}
+            <tr>
+              <td>{{ month.period }}</td>
+              <td>{{ month.time_display }}</td>
+              <td>{{ month.sessions }}</td>
+              <td>🍅 × {{ month.pomodoros }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-mini">No monthly data for the selected range.</div>
+      {% endif %}
     </div>
   </div>
 
@@ -77,4 +215,165 @@
     {% endif %}
   </div>
 </div>
+
+{{ daily_study_data|json_script:"daily-study-data" }}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+  const dataElement = document.getElementById('daily-study-data');
+  const canvas = document.getElementById('dailyStudyChart');
+  if (!dataElement || !canvas) {
+    return;
+  }
+
+  const dailyData = JSON.parse(dataElement.textContent || '[]');
+  if (!dailyData.length) {
+    return;
+  }
+
+  const context = canvas.getContext('2d');
+
+  function formatHours(seconds) {
+    return (seconds / 3600).toFixed(seconds >= 3600 ? 1 : 2).replace(/\.0+$/, '');
+  }
+
+  function renderChart() {
+    const dpr = window.devicePixelRatio || 1;
+    const width = canvas.clientWidth;
+    const height = 320;
+    const maxSeconds = Math.max(...dailyData.map((item) => item.seconds), 1);
+
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+    context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    context.clearRect(0, 0, width, height);
+
+    const leftPad = 52;
+    const rightPad = 18;
+    const topPad = 30;
+    const bottomPad = 54;
+    const chartWidth = width - leftPad - rightPad;
+    const chartHeight = height - topPad - bottomPad;
+    const pointSpacing = dailyData.length > 1 ? chartWidth / (dailyData.length - 1) : chartWidth;
+    const pointRadius = 4;
+
+    // Background grid
+    context.strokeStyle = 'rgba(140,123,112,0.16)';
+    context.lineWidth = 1;
+    for (let i = 0; i <= 4; i += 1) {
+      const y = topPad + (chartHeight / 4) * i;
+      context.beginPath();
+      context.moveTo(leftPad, y);
+      context.lineTo(width - rightPad, y);
+      context.stroke();
+
+      const labelSeconds = maxSeconds - (maxSeconds / 4) * i;
+      context.fillStyle = '#8c7b70';
+      context.font = '12px Segoe UI, system-ui, sans-serif';
+      context.textAlign = 'right';
+      context.textBaseline = 'middle';
+      context.fillText(`${formatHours(labelSeconds)}h`, leftPad - 10, y);
+    }
+
+    const points = dailyData.map((item, index) => {
+      const x = dailyData.length === 1 ? leftPad + chartWidth / 2 : leftPad + index * pointSpacing;
+      const y = topPad + chartHeight - ((item.seconds / maxSeconds) * chartHeight);
+      return { x, y, item };
+    });
+
+    if (!points.length) {
+      return;
+    }
+
+    const lineGradient = context.createLinearGradient(0, topPad, 0, topPad + chartHeight);
+    lineGradient.addColorStop(0, 'rgba(224,122,95,0.25)');
+    lineGradient.addColorStop(1, 'rgba(224,122,95,0.04)');
+
+    context.beginPath();
+    context.moveTo(points[0].x, topPad + chartHeight);
+    context.lineTo(points[0].x, points[0].y);
+    points.slice(1).forEach((point) => {
+      context.lineTo(point.x, point.y);
+    });
+    context.lineTo(points[points.length - 1].x, topPad + chartHeight);
+    context.closePath();
+    context.fillStyle = lineGradient;
+    context.fill();
+
+    context.beginPath();
+    context.strokeStyle = '#e07a5f';
+    context.lineWidth = 3;
+    points.forEach((point, index) => {
+      if (index === 0) {
+        context.moveTo(point.x, point.y);
+      } else {
+        context.lineTo(point.x, point.y);
+      }
+    });
+    context.stroke();
+
+    dailyData.forEach((item, index) => {
+      const point = points[index];
+
+      context.fillStyle = '#fff8f0';
+      context.beginPath();
+      context.arc(point.x, point.y, pointRadius + 2, 0, Math.PI * 2);
+      context.fill();
+
+      context.fillStyle = '#e07a5f';
+      context.beginPath();
+      context.arc(point.x, point.y, pointRadius, 0, Math.PI * 2);
+      context.fill();
+
+      context.fillStyle = '#3d3029';
+      context.font = '600 12px Segoe UI, system-ui, sans-serif';
+      context.textAlign = 'center';
+
+      // Keep value labels inside canvas when the point is near the top edge.
+      if (point.y - 10 < topPad + 10) {
+        context.textBaseline = 'top';
+        context.fillText(`${formatHours(item.seconds)}h`, point.x, point.y + 10);
+      } else {
+        context.textBaseline = 'bottom';
+        context.fillText(`${formatHours(item.seconds)}h`, point.x, point.y - 10);
+      }
+
+      context.fillStyle = '#8c7b70';
+      context.font = '12px Segoe UI, system-ui, sans-serif';
+      context.textBaseline = 'top';
+      const labelY = topPad + chartHeight + 10;
+      wrapLabel(context, item.short_date, point.x, labelY, 58);
+    });
+  }
+
+  function wrapLabel(ctx, text, x, y, maxWidth) {
+    const words = String(text).split(' ');
+    const lineHeight = 14;
+    let line = '';
+    const lines = [];
+
+    words.forEach((word) => {
+      const testLine = line ? `${line} ${word}` : word;
+      if (ctx.measureText(testLine).width > maxWidth && line) {
+        lines.push(line);
+        line = word;
+      } else {
+        line = testLine;
+      }
+    });
+    if (line) {
+      lines.push(line);
+    }
+
+    lines.slice(0, 2).forEach((lineText, lineIndex) => {
+      ctx.fillText(lineText, x, y + lineIndex * lineHeight);
+    });
+  }
+
+  renderChart();
+  window.addEventListener('resize', renderChart);
+})();
+</script>
 {% endblock %}

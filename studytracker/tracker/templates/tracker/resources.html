@@ -1,6 +1,6 @@
 {% extends 'tracker/base.html' %}
 
-{% block title %}StudyTracker – Resources{% endblock %}
+{% block title %}StudyTracker - Resources{% endblock %}
 {% block body_class %}page-resources{% endblock %}
 {% block nav_resources %}active{% endblock %}
 
@@ -8,27 +8,42 @@
 <div class="resources-wrapper">
   <div class="page-header">
     <h1 class="page-title">📖 Study Resources</h1>
-    <p class="page-sub">Your personal PDF library — all study material in one place.</p>
+    <p class="page-sub">Your personal PDF library - all study material in one place.</p>
   </div>
 
   <div class="resources-layout">
 
-    <!-- Upload Form -->
     <div class="upload-panel">
       <h2 class="panel-title">📤 Upload PDF</h2>
+      {% if messages %}
+      <div class="upload-messages">
+        {% for message in messages %}
+        <div class="upload-message {% if message.tags %}upload-message-{{ message.tags }}{% endif %}">{{ message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
       <form method="post" action="{% url 'upload_resource' %}" enctype="multipart/form-data" class="upload-form">
         {% csrf_token %}
         <div class="form-field">
           <label>Title *</label>
           {{ form.title }}
+          {% for error in form.title.errors %}
+          <div class="field-error">{{ error }}</div>
+          {% endfor %}
         </div>
         <div class="form-field">
           <label>Subject</label>
           {{ form.subject }}
+          {% for error in form.subject.errors %}
+          <div class="field-error">{{ error }}</div>
+          {% endfor %}
         </div>
         <div class="form-field">
           <label>Description</label>
           {{ form.description }}
+          {% for error in form.description.errors %}
+          <div class="field-error">{{ error }}</div>
+          {% endfor %}
         </div>
         <div class="form-field">
           <label>PDF File *</label>
@@ -37,22 +52,22 @@
             <span class="drop-text" id="dropText">Click or drag a PDF here</span>
             {{ form.pdf_file }}
           </div>
+          {% for error in form.pdf_file.errors %}
+          <div class="field-error">{{ error }}</div>
+          {% endfor %}
         </div>
         <button type="submit" class="btn btn-start btn-full">Upload PDF</button>
       </form>
     </div>
 
-    <!-- PDF Library -->
     <div class="library-panel">
       <div class="library-header">
         <h2 class="panel-title">📚 Library</h2>
-        <!-- Subject Filter -->
         {% if subjects %}
         <div class="filter-chips">
           <a href="{% url 'resources' %}" class="chip {% if not subject_filter %}chip-active{% endif %}">All</a>
           {% for subject in subjects %}
-          <a href="?subject={{ subject|urlencode }}"
-             class="chip {% if subject_filter == subject %}chip-active{% endif %}">{{ subject }}</a>
+          <a href="?subject={{ subject|urlencode }}" class="chip {% if subject_filter == subject %}chip-active{% endif %}">{{ subject }}</a>
           {% endfor %}
         </div>
         {% endif %}
@@ -76,13 +91,9 @@
             </div>
           </div>
           <div class="pdf-actions">
-            <button class="btn btn-outline btn-sm" onclick="openPDF('{{ resource.pdf_file.url }}', '{{ resource.title }}')">
-              👁 View
-            </button>
-            <a href="{{ resource.pdf_file.url }}" download class="btn btn-outline btn-sm">⬇ Download</a>
-            <a href="{% url 'delete_resource' resource.pk %}"
-               class="btn btn-danger btn-sm"
-               onclick="return confirm('Delete {{ resource.title }}?')">🗑 Delete</a>
+            <a href="{% url 'view_resource' resource.pk %}" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">👁 View</a>
+            <a href="{% url 'download_resource' resource.pk %}" class="btn btn-outline btn-sm">⬇ Download</a>
+            <a href="{% url 'delete_resource' resource.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Delete {{ resource.title|escapejs }}?')">🗑 Delete</a>
           </div>
         </div>
         {% endfor %}
@@ -97,48 +108,18 @@
 
   </div>
 </div>
-
-<!-- PDF Viewer Modal -->
-<div class="modal-overlay hidden" id="pdfViewerModal">
-  <div class="pdf-viewer-modal">
-    <div class="pdf-viewer-header">
-      <span class="pdf-viewer-title" id="pdfViewerTitle">PDF Viewer</span>
-      <button class="pdf-close-btn" onclick="closePDF()">✕ Close</button>
-    </div>
-    <iframe id="pdfFrame" class="pdf-iframe" src="" title="PDF Viewer"></iframe>
-  </div>
-</div>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
-function openPDF(url, title) {
-  document.getElementById('pdfFrame').src = url;
-  document.getElementById('pdfViewerTitle').textContent = title;
-  document.getElementById('pdfViewerModal').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-}
-
-function closePDF() {
-  document.getElementById('pdfFrame').src = '';
-  document.getElementById('pdfViewerModal').classList.add('hidden');
-  document.body.style.overflow = '';
-}
-
-// File drop zone label update
 const pdfInput = document.querySelector('input[type="file"]');
 const dropText = document.getElementById('dropText');
-if (pdfInput) {
+if (pdfInput && dropText) {
   pdfInput.addEventListener('change', () => {
     if (pdfInput.files.length > 0) {
       dropText.textContent = pdfInput.files[0].name;
     }
   });
 }
-
-// Close modal on overlay click
-document.getElementById('pdfViewerModal').addEventListener('click', function(e) {
-  if (e.target === this) closePDF();
-});
 </script>
 {% endblock %}

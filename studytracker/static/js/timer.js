@@ -5,17 +5,21 @@
 const FOCUS_DURATION = 25 * 60;   // 1500 seconds
 const BREAK_DURATION = 5  * 60;   //  300 seconds
 const CIRCUMFERENCE  = 2 * Math.PI * 108; // ≈ 678.6
+const TIMER_STORAGE_KEY = 'studytracker.timerState';
 
 // ---- State ----
 let taskName           = '';
 let timerInterval      = null;
-let elapsedInterval    = null;
 let secondsLeft        = FOCUS_DURATION;
 let totalSecondsElapsed = 0;
 let isBreak            = false;
 let pomodoros          = 0;
 let running            = false;
 let breakCountdownId   = null;
+let sessionStartAt     = null;
+let pausedAccumulatedMs = 0;
+let currentPhaseEndsAt  = null;
+let pausedAt           = null;
 
 // ---- DOM refs ----
 const taskInput       = document.getElementById('taskNameInput');
@@ -34,6 +38,106 @@ const congratsModal   = document.getElementById('congratsModal');
 const breakModal      = document.getElementById('breakModal');
 const breakTimerDisp  = document.getElementById('breakTimerDisplay');
 
+// ---- Storage helpers ----
+function saveTimerState() {
+  if (!taskName) {
+    localStorage.removeItem(TIMER_STORAGE_KEY);
+    return;
+  }
+
+  localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify({
+    taskName,
+    secondsLeft,
+    totalSecondsElapsed,
+    isBreak,
+    pomodoros,
+    running,
+    sessionStartAt,
+    pausedAccumulatedMs,
+    currentPhaseEndsAt,
+    pausedAt,
+  }));
+}
+
+function clearTimerState() {
+  localStorage.removeItem(TIMER_STORAGE_KEY);
+}
+
+function loadTimerState() {
+  const rawState = localStorage.getItem(TIMER_STORAGE_KEY);
+  if (!rawState) return null;
+
+  try {
+    return JSON.parse(rawState);
+  } catch (error) {
+    clearTimerState();
+    return null;
+  }
+}
+
+function getTotalElapsedSeconds(now = Date.now()) {
+  if (sessionStartAt == null) return totalSecondsElapsed;
+  const pausedMs = pausedAccumulatedMs + (pausedAt ? (now - pausedAt) : 0);
+  return Math.max(0, Math.floor((now - sessionStartAt - pausedMs) / 1000));
+}
+
+function getRemainingSeconds(now = Date.now()) {
+  if (!running || currentPhaseEndsAt == null) {
+    return secondsLeft;
+  }
+  return Math.max(0, Math.ceil((currentPhaseEndsAt - now) / 1000));
+}
+
+function applyModeToUI() {
+  timerMode.textContent = isBreak ? 'BREAK' : 'FOCUS';
+  pomodoroCount.textContent = `🍅 Round ${isBreak ? pomodoros : pomodoros + 1}`;
+  ringProgress.style.stroke = isBreak ? '#a78bfa' : '#e07a5f';
+}
+
+function advancePhase(now = Date.now()) {
+  if (!currentPhaseEndsAt) return;
+
+  while (currentPhaseEndsAt && now >= currentPhaseEndsAt) {
+    if (!isBreak) {
+      pomodoros += 1;
+      isBreak = true;
+      currentPhaseEndsAt += BREAK_DURATION * 1000;
+      showBreakModal();
+    } else {
+      isBreak = false;
+      currentPhaseEndsAt += FOCUS_DURATION * 1000;
+      hideBreakModal();
+    }
+  }
+
+  secondsLeft = getRemainingSeconds(now);
+  totalSecondsElapsed = getTotalElapsedSeconds(now);
+}
+
+function restoreTimerUI() {
+  taskInputSec.classList.add('hidden');
+  timerSection.classList.remove('hidden');
+  timerTaskBadge.textContent = taskName;
+
+  if (running && currentPhaseEndsAt != null) {
+    advancePhase();
+    startCountdown();
+    startElapsedCounter();
+    if (isBreak) {
+      showBreakModal();
+    } else {
+      hideBreakModal();
+    }
+  } else {
+    clearInterval(timerInterval);
+    stopBtn.classList.add('hidden');
+    resumeBtn.classList.remove('hidden');
+    hideBreakModal();
+  }
+
+  updateDisplay();
+}
+
 // ---- Listeners ----
 taskInput.addEventListener('input', () => {
   startBtn.disabled = taskInput.value.trim().length === 0;
@@ -49,6 +153,28 @@ resumeBtn.addEventListener('click',               resumeTimer);
 doneBtn.addEventListener('click',                 markDone);
 document.getElementById('modalNewTask')
         .addEventListener('click',                resetAll);
+
+window.addEventListener('beforeunload', saveTimerState);
+
+const storedState = loadTimerState();
+if (storedState && storedState.taskName) {
+  taskName = storedState.taskName || '';
+  secondsLeft = storedState.secondsLeft ?? FOCUS_DURATION;
+  totalSecondsElapsed = storedState.totalSecondsElapsed ?? 0;
+  isBreak = Boolean(storedState.isBreak);
+  pomodoros = storedState.pomodoros ?? 0;
+  running = Boolean(storedState.running);
+  sessionStartAt = storedState.sessionStartAt ?? null;
+  pausedAccumulatedMs = storedState.pausedAccumulatedMs ?? 0;
+  currentPhaseEndsAt = storedState.currentPhaseEndsAt ?? null;
+  pausedAt = storedState.pausedAt ?? null;
+
+  if (running && currentPhaseEndsAt) {
+    advancePhase();
+  }
+
+  restoreTimerUI();
+}
 
 // ============================================================
 //  CORE FUNCTIONS
@@ -66,9 +192,15 @@ function startTimer() {
   secondsLeft          = FOCUS_DURATION;
   pomodoros            = 0;
   totalSecondsElapsed  = 0;
+  running              = true;
+  sessionStartAt       = Date.now();
+  pausedAccumulatedMs  = 0;
+  currentPhaseEndsAt   = Date.now() + FOCUS_DURATION * 1000;
+  pausedAt             = null;
 
   startCountdown();
   startElapsedCounter();
+  saveTimerState();
 }
 
 function startCountdown() {
@@ -77,63 +209,78 @@ function startCountdown() {
   stopBtn.classList.remove('hidden');
   resumeBtn.classList.add('hidden');
   timerInterval = setInterval(tick, 1000);
+  if (currentPhaseEndsAt == null) {
+    currentPhaseEndsAt = Date.now() + secondsLeft * 1000;
+  }
   updateDisplay();
 }
 
 function tick() {
-  if (secondsLeft <= 0) {
-    clearInterval(timerInterval);
-    running = false;
+  if (!running) return;
 
+  advancePhase();
+  if (secondsLeft <= 0) {
     if (!isBreak) {
-      // Focus session ended → break
       pomodoros++;
       beginBreak();
     } else {
-      // Break ended → next focus session
       hideBreakModal();
-      isBreak     = false;
+      isBreak = false;
       secondsLeft = FOCUS_DURATION;
+      currentPhaseEndsAt = Date.now() + FOCUS_DURATION * 1000;
       startCountdown();
     }
+    saveTimerState();
     return;
   }
-  secondsLeft--;
+
   updateDisplay();
+  saveTimerState();
 }
 
 function updateDisplay() {
+  secondsLeft = getRemainingSeconds();
+  totalSecondsElapsed = getTotalElapsedSeconds();
+
   const mins = Math.floor(secondsLeft / 60);
   const secs = secondsLeft % 60;
   timerDisplay.textContent =
     `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
 
-  timerMode.textContent    = isBreak ? 'BREAK' : 'FOCUS';
-  pomodoroCount.textContent = `🍅 Round ${isBreak ? pomodoros : pomodoros + 1}`;
+  applyModeToUI();
 
   const total    = isBreak ? BREAK_DURATION : FOCUS_DURATION;
   const fraction = secondsLeft / total;
   ringProgress.style.strokeDashoffset = CIRCUMFERENCE * fraction;
-  ringProgress.style.stroke = isBreak ? '#a78bfa' : '#e07a5f';
 }
 
 function pauseTimer() {
   clearInterval(timerInterval);
   running = false;
+  pausedAt = Date.now();
+  currentPhaseEndsAt = null;
   stopBtn.classList.add('hidden');
   resumeBtn.classList.remove('hidden');
+  saveTimerState();
 }
 
 function resumeTimer() {
+  if (pausedAt) {
+    pausedAccumulatedMs += Date.now() - pausedAt;
+    pausedAt = null;
+  }
+
   running = true;
   stopBtn.classList.remove('hidden');
   resumeBtn.classList.add('hidden');
+  currentPhaseEndsAt = Date.now() + secondsLeft * 1000;
   timerInterval = setInterval(tick, 1000);
+  saveTimerState();
 }
 
 function startElapsedCounter() {
-  clearInterval(elapsedInterval);
-  elapsedInterval = setInterval(() => { totalSecondsElapsed++; }, 1000);
+  clearInterval(timerInterval);
+  timerInterval = setInterval(tick, 1000);
 }
 
 // ============================================================
@@ -143,6 +290,7 @@ function startElapsedCounter() {
 function beginBreak() {
   isBreak     = true;
   secondsLeft = BREAK_DURATION;
+  currentPhaseEndsAt = Date.now() + BREAK_DURATION * 1000;
   updateDisplay();
   showBreakModal();
   // Break countdown inside modal
@@ -159,6 +307,7 @@ function beginBreak() {
       hideBreakModal();
       secondsLeft = 0; // force tick() transition on next call
       tick();
+      saveTimerState();
     }
   }, 1000);
 }
@@ -184,10 +333,10 @@ function hideBreakModal() {
 
 async function markDone() {
   clearInterval(timerInterval);
-  clearInterval(elapsedInterval);
   clearInterval(breakCountdownId);
   hideBreakModal();
 
+  totalSecondsElapsed = getTotalElapsedSeconds();
   pomodoros = Math.max(pomodoros, 1); // at least 1
 
   // Save to Django backend
@@ -218,6 +367,7 @@ async function markDone() {
     `${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
 
   congratsModal.classList.remove('hidden');
+  clearTimerState();
 }
 
 // ============================================================
@@ -233,11 +383,21 @@ function resetAll() {
   startBtn.disabled = true;
 
   clearInterval(timerInterval);
-  clearInterval(elapsedInterval);
   clearInterval(breakCountdownId);
+  running = false;
+  taskName = '';
+  secondsLeft = FOCUS_DURATION;
+  totalSecondsElapsed = 0;
+  isBreak = false;
+  pomodoros = 0;
+  sessionStartAt = null;
+  pausedAccumulatedMs = 0;
+  currentPhaseEndsAt = null;
+  pausedAt = null;
 
   // Reset ring
   ringProgress.style.strokeDashoffset = 0;
   timerDisplay.textContent = '25:00';
   timerMode.textContent    = 'FOCUS';
+  clearTimerState();
 }
