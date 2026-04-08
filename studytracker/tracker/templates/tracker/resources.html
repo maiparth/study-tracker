@@ -10,14 +10,18 @@
 {% block content %}
 <div class="resources-wrapper">
   <div class="page-header">
-    <h1 class="page-title">📖 Study Resources</h1>
+    <h1 class="page-title"><img src="{% static 'resources.png' %}" 
+     alt="Stats Icon" 
+     style="width:35px; height:35px;"> Study Resources</h1>
     <p class="page-sub">Your personal PDF library - all study material in one place.</p>
   </div>
 
   <div class="resources-layout">
 
     <div class="upload-panel">
-      <h2 class="panel-title">📤 Upload PDF</h2>
+      <h2 class="panel-title"><img src="{% static 'upload.png' %}" 
+     alt="Stats Icon" 
+     style="width:25px; height:25px;"> Upload PDF</h2>
       {% if messages %}
       <div class="upload-messages">
         {% for message in messages %}
@@ -65,7 +69,9 @@
 
     <div class="library-panel">
       <div class="library-header">
-        <h2 class="panel-title">📚 Library</h2>
+        <h2 class="panel-title"><img src="{% static 'library.png' %}" 
+     alt="Stats Icon" 
+     style="width:45px; height:45px;"> Library</h2>
         {% if subjects %}
         <div class="filter-chips">
           <a href="{% url 'resources' %}" class="chip {% if not subject_filter %}chip-active{% endif %}">All</a>
